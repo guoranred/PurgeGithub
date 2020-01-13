@@ -26,7 +26,7 @@ def get_token(html):
     :param html:
     :return: 获取csrftoken
     '''
-    soup = BeautifulSoup(html,'lxml')
+    soup = BeautifulSoup(html,'html.parser')
     res = soup.find("input",attrs={"name":"authenticity_token"})
     token = res["value"]
     return token
@@ -46,12 +46,12 @@ def gihub_login(url,token,cookie):
         "commit": "Sign in",
         "utf8": "✓",
         "authenticity_token": token,
-        "login": "lgphone",
-        "password": "xxxxx"
+        "login": "13926187239@163.com",
+        "password": "tanghong668!@#"
     }
 
     response = requests.post(url, data=data, cookies=cookie)
-    print(response.status_code)
+    # print(response.status_code)
     cookie = response.cookies.get_dict()
     return cookie
 
@@ -61,8 +61,8 @@ def get_list(cookie):
     html = ret.text
     cookie2 = ret.cookies.get_dict()
     cookie.update(cookie2)
-    soup = BeautifulSoup(html, 'lxml')
-    res = soup.find_all("div", attrs={"class": "listgroup-item simple public fork js-collab-repo"})
+    soup = BeautifulSoup(html, 'html.parser')
+    res = soup.find_all("div", attrs={"class": "Box-row simple public fork js-collab-repo"})
     for i in res:
         item = i.find('a', attrs={'class': 'mr-1'}).string
         items.append(item)
@@ -74,9 +74,9 @@ def delete_rep(items,cookie):
         setting_url ='https://github.com/' + item + '/settings'
         set_ret = requests.get(url=setting_url, cookies=cookie).text
         # print(set_ret)
-        soup = BeautifulSoup(set_ret, 'lxml')
-        res = soup.find_all("form", attrs={"class": "js-normalize-submit"})
-        token = res[0].find('input', attrs={'name': 'authenticity_token'})
+        soup = BeautifulSoup(set_ret, 'html.parser')
+        res = soup.find("form", attrs={"action": "/" + item + "/settings/delete"})
+        token = res.find('input', attrs={'name': 'authenticity_token'})
         token = token["value"]
         # print(token)
         delete_url = setting_url + '/delete'
